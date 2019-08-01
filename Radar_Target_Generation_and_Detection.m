@@ -47,6 +47,7 @@ Nr=1024;                  %for length of time OR # of range cells
 
 % Timestamp for running the displacement scenario for every sample on each
 % chirp
+
 t=linspace(0,Nd*Tchirp,Nr*Nd); %total time for samples
 
 
@@ -68,23 +69,25 @@ for i=1:length(t)
     
     % *%TODO* :
     %For each time stamp update the Range of the Target for constant velocity. 
-    target_position = target_position - i * target_velocity;
-    r_t(i) = target_position;
-    td(i) = target_position * 2/c; 
+    tc = t(i);
+    r_t(i) = target_position - tc * target_velocity;
+    td(i) = r_t(i) * 2/c; 
     
     
     
     % *%TODO* :
     %For each time sample we need update the transmitted and
     %received signal. 
-    %Tx(i) = 
-    %Rx (i)  =
+    
+    Tx(i) = cos(2 * pi * (fc * tc + slope *tc ^ 2 /2));
+    delay = td(i);
+    Rx(i) =  cos(2 * pi * (fc * (tc-delay) + slope * (tc-delay) ^ 2 /2)); 
     
     % *%TODO* :
     %Now by mixing the Transmit and Receive generate the beat signal
     %This is done by element wise matrix multiplication of Transmit and
     %Receiver Signal
-    %Mix(i) = 
+    Mix(i) = Tx(i) .* Rx(i);
     
 end
 
@@ -95,17 +98,20 @@ end
 %reshape the vector into Nr*Nd array. Nr and Nd here would also define the size of
 %Range and Doppler FFT respectively.
 
+signal = reshape(Mix, [Nr, Nd]);
+
  % *%TODO* :
 %run the FFT on the beat signal along the range bins dimension (Nr) and
 %normalize.
-
+signal_fft = fft(signal);
+signal_fft = normalize(signal_fft);
  % *%TODO* :
 % Take the absolute value of FFT output
-
+signal_fft = abs(signal_fft);
  % *%TODO* :
 % Output of FFT is double sided signal, but we are interested in only one side of the spectrum.
 % Hence we throw out half of the samples.
-
+P1  = signal_fft(1:Nr/2+1)
 
 %plotting the range
 figure ('Name','Range from First FFT')
@@ -113,7 +119,8 @@ subplot(2,1,1)
 
  % *%TODO* :
  % plot FFT output 
-
+f = 200*(0:(Nr/2))/Nr;
+plot(f,P1) 
  
 axis ([0 200 0 1]);
 
