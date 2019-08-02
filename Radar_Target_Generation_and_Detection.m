@@ -103,11 +103,13 @@ signal = reshape(Mix, [Nr, Nd]);
  % *%TODO* :
 %run the FFT on the beat signal along the range bins dimension (Nr) and
 %normalize.
-signal_fft = fft(signal);
-signal_fft = normalize(signal_fft);
+signal_fft = fft(signal)/Nr;
+
  % *%TODO* :
 % Take the absolute value of FFT output
 signal_fft = abs(signal_fft);
+signal_fft = mean(signal_fft, 2);
+
  % *%TODO* :
 % Output of FFT is double sided signal, but we are interested in only one side of the spectrum.
 % Hence we throw out half of the samples.
@@ -119,8 +121,7 @@ subplot(2,1,1)
 
  % *%TODO* :
  % plot FFT output 
-f = 200*(0:(Nr/2))/Nr;
-plot(f,P1) 
+plot(P1) 
  
 axis ([0 200 0 1]);
 
