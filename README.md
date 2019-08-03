@@ -4,9 +4,9 @@ Course project for Udacity Sensor Fusion Engineer Nanodegree Program
 
 <img src="images/2dfft.png"/>
 
-This project simulates radar FMCW signal transmission and receipt upon target object reflection. Then we proceed to apply Fast Fourier transformation to the received beat frequency signal to extract target object range and velocity, particuly CFAR is used to filter detection noise.
+This project simulates radar FMCW signal transmission and receipt upon target object reflection. Then we proceed to apply Fast Fourier Transformation to the received beat frequency signal to extract target object range and velocity, particuly CFAR is used to filter detection noise.
 
-Below are a high level introduction on major components of this project.
+Below is a high level introduction on major components of this project.
 
 ## FMCW Waveform Design
 
@@ -94,7 +94,7 @@ offset = 15
 
 ```
 
-Training and guard cells size, and thresholding offset are primally determined by trails and errors, by seeing which combinations help us extract more accurate target range and velocity. Initial offset value is selected by looking at the original 2dfft result, from there we can see the signal db is aroud 40, while the noise is about 20, so the gap is about 20.
+Training and guard cells size, and thresholding offset are primally determined by trails and errors, by seeing which combination helps us extract more accurate target range and velocity. Initial offset value is selected by looking at the original 2dfft result, from there we can see the signal db is aroud 40, while the noise is about 20, so the gap is about 20.
 
 ### Suppression the non-thresholded cells at the edges
  
