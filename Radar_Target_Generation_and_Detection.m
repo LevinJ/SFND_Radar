@@ -15,7 +15,7 @@ clc;
 % define the target's initial position and velocity. Note : Velocity
 % remains contant
 target_position = 110;
-target_velocity = 20;
+target_velocity = -20;
  
 
 
@@ -70,7 +70,7 @@ for i=1:length(t)
     % *%TODO* :
     %For each time stamp update the Range of the Target for constant velocity. 
     tc = t(i);
-    r_t(i) = target_position - tc * target_velocity;
+    r_t(i) = target_position + tc * target_velocity;
     td(i) = r_t(i) * 2/c; 
     
     
@@ -113,7 +113,7 @@ signal_fft = mean(signal_fft, 2);
  % *%TODO* :
 % Output of FFT is double sided signal, but we are interested in only one side of the spectrum.
 % Hence we throw out half of the samples.
-P1  = signal_fft(1:Nr/2+1)
+P1  = signal_fft(1:Nr/2+1);
 
 %plotting the range
 figure ('Name','Range from First FFT')
@@ -121,7 +121,7 @@ subplot(2,1,1)
 
  % *%TODO* :
  % plot FFT output 
-plot(P1) 
+plot(P1); grid minor
  
 axis ([0 200 0 1]);
 
@@ -162,17 +162,24 @@ figure,surf(doppler_axis,range_axis,RDM);
 
 % *%TODO* :
 %Select the number of Training Cells in both the dimensions.
-
+times = 4;
+Tr = 8*times;
+Td = 4*times;
 % *%TODO* :
 %Select the number of Guard Cells in both dimensions around the Cell under 
 %test (CUT) for accurate estimation
-
+Gr = 4*times;
+Gd = 2*times;
 % *%TODO* :
 % offset the threshold by SNR value in dB
+offset = 15;
 
 % *%TODO* :
 %Create a vector to store noise_level for each iteration on training cells
-noise_level = zeros(1,1);
+[num_rows,num_cols]= size(RDM);
+noise_level = zeros(num_rows-2*(Tr+Gr),num_cols-2*(Td+Gd));
+sliding_window_size = (2*Tr+2*Gr+1)*(2*Td+2*Gd+1);
+training_cells_num = sliding_window_size-(2*Gr+1)*(2*Gd+1);
 
 
 % *%TODO* :
@@ -189,6 +196,25 @@ noise_level = zeros(1,1);
 
    % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
    % CFAR
+CFAR_sig = zeros(size(RDM));
+for i= 1:num_rows- 2*(Tr + Gr)
+    for j=1:num_cols-2*(Td+Gd)
+    
+        %first extract the whole sliding windows
+        training_cells = db2pow(RDM(i:i+2*(Tr+Gr),j:j+2*(Td+Gd)));
+        %set the test and guard cell to zero
+        training_cells(Tr+1:end-Tr,Td+1:end-Td) = 0;
+        
+        noise_level(i,j) = pow2db(sum(sum(training_cells))/training_cells_num);
+        sigThresh = noise_level(i,j) + offset;
+        if RDM(i+(Tr+Gr),j+(Td+Gd))>sigThresh
+            CFAR_sig(i+(Tr+Gr),j+(Td+Gd)) = 1;
+        else
+            CFAR_sig(i+(Tr+Gr),j+(Td+Gd)) = 0;
+        end
+           
+    end
+end
 
 
 
@@ -200,7 +226,8 @@ noise_level = zeros(1,1);
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
 % set those values to 0. 
  
-
+%privious `CFAR_sig = zeros(size(RDM));` alreadyset those cells as 0, no
+%need to do anythig here
 
 
 
@@ -211,5 +238,5 @@ noise_level = zeros(1,1);
 % *%TODO* :
 %display the CFAR output using the Surf function like we did for Range
 %Doppler Response output.
-figure,surf(doppler_axis,range_axis,'replace this with output');
+figure,surf(doppler_axis,range_axis,CFAR_sig);
 colorbar;
