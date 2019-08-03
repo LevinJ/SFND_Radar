@@ -25,12 +25,12 @@ target_velocity = -20;
 %Design the FMCW waveform by giving the specs of each of its parameters.
 % Calculate the Bandwidth (B), Chirp Time (Tchirp) and Slope (slope) of the FMCW
 % chirp using the requirements above.
-delta_r = 1;
-range_max = 200;
+delta_r = 1; %range resolution
+range_max = 200; %max range
 c = 3 * 10 ^ 8;  % speed fo light in meter/sec
-B =  c / (2 * delta_r);
-Tchirp = 5.5 * (range_max * 2 /c);
-slope = B/Tchirp;
+B =  c / (2 * delta_r); %Bandwidth
+Tchirp = 5.5 * (range_max * 2 /c); %chirp time
+slope = B/Tchirp; %slope of the chirp
 
 
 
@@ -162,7 +162,7 @@ figure,surf(doppler_axis,range_axis,RDM);
 
 % *%TODO* :
 %Select the number of Training Cells in both the dimensions.
-times = 4;
+times = 2;
 Tr = 8*times;
 Td = 4*times;
 % *%TODO* :
@@ -226,7 +226,7 @@ end
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
 % set those values to 0. 
  
-%privious `CFAR_sig = zeros(size(RDM));` alreadyset those cells as 0, no
+%privious `CFAR_sig = zeros(size(RDM));` already set those cells as 0, no
 %need to do anythig here
 
 
